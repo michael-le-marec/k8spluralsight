@@ -1,0 +1,3 @@
+# 
+ssh k8s-c1-cp1.westeurope.cloudapp.azure.com -i /C/Users/mlemarec/OneDrive\ -\ SYMTRAX/.ssh/k8s/k8s_c1-cp1.ppk
+

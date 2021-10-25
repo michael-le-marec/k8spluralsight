@@ -1,6 +1,6 @@
 ssh "k8s-c1-cp1.westeurope.cloudapp.azure.com"
 
-kubectl create deploy hello-world --image=gcr.io/google-samples/hello-app:1.0 --replicas=5
+kubectl create deploy hello-world --image=gcr.io/google-samples/hello-app:1.0 --replicas=1
 
 ku run hello-world-pod --image=gcr.io/google-samples/hello-app:1.0
 

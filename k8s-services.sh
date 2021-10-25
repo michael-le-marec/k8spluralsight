@@ -33,3 +33,22 @@ kubectl apply -f service.yaml
 
 kubectl get all
 
+vi deployment.yaml
+# change spec.replicas from 1 to 20
+
+kubectl get deploy hello-world
+kubectl get pods | less
+
+kubectl get service hello-world
+curl http://10.103.247.195
+
+kubectl edit deploy hello-world
+# change spec.replicas from 20 to 30
+
+kubectl get deploy hello-world
+
+kubectl scale deploy hello-world --replicas=20 
+
+kubectl delete deploy hello-world
+kubectl delete service hello-world
+kubectl get all

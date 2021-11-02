@@ -228,3 +228,134 @@ kubectl label node c1-node3 hardware-
 kubectl delete pod nginx-pod --wait=false
 kubectl delete pod nginx-pod-gpu --wait=false
 kubectl delete pod nginx-pod-ssd --wait=false
+
+
+# get running containers in specific namespace from containerd
+ctr -n k8s.io container ls
+
+# RUNNING AND MANAGING PODS
+
+# Bare Pods
+
+kubectl get events --watch &
+
+kubectl apply -f pod.yaml
+
+kubectl apply -f deployment.yaml
+
+kubectl scale deployment hello-world --replicas=6
+
+kubectl scale deployment hello-world --replicas=1
+
+kubectl get pods
+
+kubectl -v 6 exec -it hello-world-5457b44555-zs75p -- /bin/sh
+ps
+exit
+
+kubectl get pods -o wide
+ssh k8s-c1-node1.westeurope.cloudapp.azure.com -i ~/.ssh/k8s_c1-cp1.ppk
+ps -aux | grep hello
+exit
+ssh k8s-c1-cp1.westeurope.cloudapp.azure.com -i ~/.ssh/k8s_c1-cp1.ppk
+
+kubectl port-forward hello-world-5457b44555-zs75p 80:8080
+# 80 is a privileged port => not working without sudo
+
+kubectl port-forward hello-world-5457b44555-zs75p 8080:8080 &
+curl http://localhost:8080
+fg
+
+kubectl delete deploy hello-world
+kubectl delete pod hello-world
+
+# STATIC PODS
+
+kubectl run hello-world --image=gcr.io/google-samples/hello-app:2.0 --dry-run=client -o yaml --port=8080
+exit
+ssh k8s-c1-node1.westeurope.cloudapp.azure.com -i ~/.ssh/k8s_c1-cp1.ppk
+
+sudo cat /var/lib/kubelet/config.yaml
+
+sudo vi /etc/kubernetes/manifests/mypod.yaml
+exit
+
+kubectl get nodes
+# Static pod is now present and is recreated if deleted
+
+ssh k8s-c1-node1.westeurope.cloudapp.azure.com -i ~/.ssh/k8s_c1-cp1.ppk
+sudo rm /etc/kubernetes/manifests/mypod.yaml
+exit
+
+# MULTI-CONTAINER PODS
+kubectl apply -f multicontainer-pod.yaml
+
+kubectl exec -it multicontainer-pod -- /bin/sh
+ls -la /var/log
+tail /var/log/index.html
+exit
+
+kubectl exec -it multicontainer-pod --container consumer -- /bin/sh
+ls -la /usr/share/nginx/html
+tail /usr/share/nginx/html/index.html
+exit
+
+kubectl port-forward multicontainer-pod 8080:80 &
+curl http://localhost:8080
+
+# INIT CONTAINERS
+kubectl get pods --watch &
+kubectl apply -f init-containers.yaml
+fg
+
+kubectl describe pods init-containers | less
+
+# POD LIFECYCLE AND CONTAINER RESTART POLICY
+
+kubectl get events --watch &
+
+kubectl apply -f pod.yaml
+
+kubectl exec -it hello-world -- /bin/sh
+ps
+exit
+
+kubectl exec -it hello-world -- /usr/bin/killall hello-app
+
+kubectl get pods
+
+kubectl describe pod hello-world
+
+kubectl delete pod hello-world
+
+fg
+
+kubectl explain pods.spec.restartPolicy
+
+kubectl apply -f pod-restart-policy.yaml
+
+kubectl get pods
+
+kubectl exec -it hello-world-never-pod -- /usr/bin/killall hello-app
+
+kubectl describe pod hello-world-never-pod
+
+kubectl exec -it hello-world-onfailure-pod -- /usr/bin/killall hello-app
+
+kubectl describe pod hello-world-onfailure-pod
+
+kubectl delete pod --all
+
+# CONTAINER PROBES
+
+kubectl get events --watch &
+
+kubectl apply -f container-probes.yaml
+fg
+
+kubectl get pods
+
+kubectl describe pods
+
+vi container-probes.yaml
+
